@@ -71,7 +71,7 @@ def main():
   )
   s3 = STEP(
       name="Run Tests",
-      command=["python", build_utils.build_script("run_tests.py"), "-f", "-v"],
+      command=["python", build_utils.build_script("run_tests.py"), "-v"],
   )
   s4 = STEP(
       name="Run Extensions Tests",
