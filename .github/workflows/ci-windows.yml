@@ -8,30 +8,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_windows:
-
+  set_up_on_windows:
     runs-on: windows-latest
-
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: true
-
     - name: Download Python
       run: Invoke-WebRequest -Uri 'https://www.python.org/ftp/python/3.10.5/python-3.10.5-amd64.exe' -OutFile python-installer.exe
-
     - name: Install Python
       run: .\python-installer /quiet /passive Include_debug=1 PrependPath=1 TargetDir=C:\Python | more
-
     - uses: ilammy/msvc-dev-cmd@v1
-
-    - name: Test
-      env:
-        LINT: ${{ runner.os == 'Linux' && matrix.python-version == '3.11' }}
-      run: | 
+    - name: Set variables and install deps
+      run: |
         set LIB=C:\Python\Libs;%LIB%
         set TYPESHED_HOME=%cd%\typeshed
         set PATH=C:\Python;C:\Python\Scripts;%PATH%
         pip install -r requirements.txt
-        python build_scripts/ci_script.py
       shell: cmd
+    - name: Build
+      run:
+        python build_scripts/build.py
+  Lint:
+    needs: set_up_on_windows
+    steps:
+    - run: pylint build_scripts/ pytype/ pytype_extensions/ setup.py
+
+  Test:
+    needs: set_up_on_windows
+    steps:
+    - run: python build_scripts/run_tests.py -v
+  
+  Extension Tests:
+    needs: set_up_on_windows
+    steps:
+    - run: python -m pytype_extensions.test_pytype_extensions
+  
+  Type Check:
+    needs: set_up_on_windows
+    steps:
+    - run: python out/bin/pytype -j auto

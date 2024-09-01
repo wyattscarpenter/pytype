@@ -53,6 +53,7 @@ def _run_steps(steps):
 
 
 def main():
+  arguments = sys.argv[1:] #alternate way to call this program, with index arguments. See below.
   s1 = STEP(
       name="Lint",
       command=[
@@ -82,7 +83,13 @@ def main():
   steps = [s1, s2, s3, s4, s5]
   if os.environ.get("LINT") == "false":
     steps.remove(s1)
-  _run_steps(steps)
+  if not arguments:
+    _run_steps(steps)
+  else:
+    for argument in arguments:
+      index = int(argument)
+      if index < len(arguments)
+        
   print("\n*** All build steps completed successfully! ***\n")
 
 
