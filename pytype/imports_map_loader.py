@@ -5,6 +5,7 @@ import logging
 import os
 from typing import Dict, List, Optional, Tuple
 
+from pytype import file_utils
 from pytype.platform_utils import path_utils
 
 log = logging.getLogger(__name__)
@@ -37,9 +38,10 @@ class ImportsMapBuilder:
     """Build a multimap from a list of (short_path, path) pairs."""
     # TODO(mdemello): Keys should ideally be modules, not short paths.
     imports_multimap = collections.defaultdict(set)
+    r = file_utils.replace_separator
     for short_path, path in items:
       short_path, _ = path_utils.splitext(short_path)  # drop extension
-      imports_multimap[short_path].add(path)
+      imports_multimap[r(short_path)].add(r(path))
     # Sort the multimap. Move items with '#' in the base name, generated for
     # analysis results via --api, first, so we prefer them over others.
     return {
