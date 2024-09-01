@@ -19,16 +19,15 @@ jobs:
     - name: Install Python
       run: .\python-installer /quiet /passive Include_debug=1 PrependPath=1 TargetDir=C:\Python | more
     - uses: ilammy/msvc-dev-cmd@v1
-    - name: Set variables and install deps
+    - name: Set variables and install deps and build
       run: |
         set LIB=C:\Python\Libs;%LIB%
         set TYPESHED_HOME=%cd%\typeshed
         set PATH=C:\Python;C:\Python\Scripts;%PATH%
         pip install -r requirements.txt
-      shell: cmd
-    - name: Build
-      run:
         python build_scripts/build.py
+      shell: cmd
+
   Lint:
     runs-on: windows-latest
     needs: Set_up_on_windows
