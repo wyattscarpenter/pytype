@@ -30,21 +30,25 @@ jobs:
       run:
         python build_scripts/build.py
   Lint:
+    runs-on: windows-latest
     needs: set_up_on_windows
     steps:
     - run: pylint build_scripts/ pytype/ pytype_extensions/ setup.py
 
   Test:
+    runs-on: windows-latest
     needs: set_up_on_windows
     steps:
     - run: python build_scripts/run_tests.py -v
-  
+
   Extension Tests:
+    runs-on: windows-latest
     needs: set_up_on_windows
     steps:
     - run: python -m pytype_extensions.test_pytype_extensions
   
   Type Check:
+    runs-on: windows-latest
     needs: set_up_on_windows
     steps:
     - run: python out/bin/pytype -j auto

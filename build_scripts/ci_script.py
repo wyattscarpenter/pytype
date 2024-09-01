@@ -91,8 +91,9 @@ def main():
   else:
     for argument in arguments:
       index = int(argument)
-      if index < len(arguments)
-        
+      if index < len(arguments):
+        _run_steps([steps[index]])
+
   print("\n*** All build steps completed successfully! ***\n")
 
 
