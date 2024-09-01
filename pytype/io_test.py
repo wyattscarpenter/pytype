@@ -77,13 +77,16 @@ class IOTest(unittest.TestCase):
     self.assertIsInstance(ret.ast, pytd.TypeDeclUnit)
 
   def test_generate_pyi_with_options(self):
-    with self._tmpfile("x: int") as pyi:
-      pyi_name, _ = path_utils.splitext(path_utils.basename(pyi.name))
-      with self._tmpfile(f"{pyi_name} {pyi.name}") as imports_map:
-        src = "import {mod}; y = {mod}.x".format(mod=pyi_name)
+    with self._tmpfile("x: int") as first_pyi_file:
+      basic_name, _ = path_utils.splitext(path_utils.basename(first_pyi_file.name))
+      print(f"INFORMATIVE: {basic_name} {first_pyi_file.name}")
+      with self._tmpfile(f"{basic_name} {first_pyi_file.name}") as imports_map:
+        src = f"import {basic_name}; y = {basic_name}.x"
+        print(f"{imports_map.name=} {imports_map=}")
         options = config.Options.create(imports_map=imports_map.name)
-        _, pyi_string = io.generate_pyi(src, options)
-    self.assertEqual(pyi_string, f"import {pyi_name}\n\ny: int\n")
+        _, generated_pyi_string = io.generate_pyi(src, options)
+        expected_pyi_string = f"import {basic_name}\n\ny: int\n"
+    self.assertEqual(generated_pyi_string, expected_pyi_string)
 
   def test_generate_pyi__overload_order(self):
     _, pyi_string = io.generate_pyi(textwrap.dedent("""
