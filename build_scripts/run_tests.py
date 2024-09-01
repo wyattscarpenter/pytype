@@ -21,6 +21,7 @@ def parse_args():
   parser = argparse.ArgumentParser()
   parser.add_argument(
       "targets",
+      default=["test_all"],
       metavar="TARGET",
       nargs="*",
       help="List of test targets to run.",
@@ -59,13 +60,12 @@ def parse_args():
 
 def main():
   opts = parse_args()
-  targets = opts.targets or ["test_all"]
   if not build_utils.run_cmake(log_output=True, debug_build=opts.debug):
     sys.exit(1)
   fail_collector = build_utils.FailCollector()
   print("Running tests (build steps will be executed as required) ...\n")
   if not build_utils.run_ninja(
-      targets, fail_collector, opts.fail_fast, opts.verbose
+      opts.targets, fail_collector, opts.fail_fast, opts.verbose
   ):
     fail_collector.print_report(opts.verbose)
     sys.exit(1)

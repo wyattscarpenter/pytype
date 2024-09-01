@@ -41,15 +41,18 @@ def _report_failure(s):
 
 
 def _run_steps(steps):
+  exit_with_error: bool = False
   for s in steps:
     _begin_step(s)
     try:
       returncode, _ = build_utils.run_cmd(s.command, pipe=False)
       if returncode != 0:
         _report_failure(s)
-        sys.exit(1)
+        exit_with_error = True
     finally:
       _end_step(s)
+  if exit_with_error:
+    sys.exit(1)
 
 
 def main():
@@ -69,7 +72,7 @@ def main():
   )
   s3 = STEP(
       name="Run Tests",
-      command=["python", build_utils.build_script("run_tests.py"), "-f", "-v"],
+      command=["python", build_utils.build_script("run_tests.py"), "-v"],
   )
   s4 = STEP(
       name="Run Extensions Tests",
