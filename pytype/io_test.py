@@ -150,7 +150,7 @@ class IOTest(unittest.TestCase):
       d.create_file(j("aaa","other.pyi"), "class Other: pass")
       imports_info = d.create_file(
           "imports_info",
-          textwrap.dedent(
+          textwrap.dedent( # The fact that we need to j these suggests a sub-optimal interface somewhere else.
               f"""
               {j("common", "foo")} {j("common", "foo.pyi")}
               {j("common", "bar")} {j("common", "bar.pyi")}
@@ -174,7 +174,7 @@ class IOTest(unittest.TestCase):
       )
       with options.open_function(unused_imports_info_files) as f:
         content = f.read()
-      self.assertEqual(content, "aaa/other.pyi\ncommon/baz.pyi\n")
+      self.assertEqual(content, j("aaa", "other.pyi")+"\n"+j("common", "baz.pyi")+"\n")
 
 
 if __name__ == "__main__":
