@@ -75,6 +75,7 @@ class ImportMapLoaderTest(unittest.TestCase):
     f = file_utils.replace_separator
     expected = [(f(k), list(map(f, v))) for k, v in expected]
     actual = self.builder._build_multimap(items).items()
+    self.maxDiff = None
     self.assertCountEqual(actual, expected)
 
   def test_do_not_filter(self):

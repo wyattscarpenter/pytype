@@ -77,13 +77,16 @@ class IOTest(unittest.TestCase):
     self.assertIsInstance(ret.ast, pytd.TypeDeclUnit)
 
   def test_generate_pyi_with_options(self):
-    with self._tmpfile("x: int") as pyi:
-      pyi_name, _ = path_utils.splitext(path_utils.basename(pyi.name))
-      with self._tmpfile(f"{pyi_name} {pyi.name}") as imports_map:
-        src = "import {mod}; y = {mod}.x".format(mod=pyi_name)
+    with self._tmpfile("x: int") as first_pyi_file:
+      basic_name, _ = path_utils.splitext(path_utils.basename(first_pyi_file.name))
+      print(f"INFORMATIVE: {basic_name} {first_pyi_file.name}")
+      with self._tmpfile(f"{basic_name} {first_pyi_file.name}") as imports_map:
+        src = f"import {basic_name}; y = {basic_name}.x"
+        print(f"{imports_map.name=} {imports_map=}")
         options = config.Options.create(imports_map=imports_map.name)
-        _, pyi_string = io.generate_pyi(src, options)
-    self.assertEqual(pyi_string, f"import {pyi_name}\n\ny: int\n")
+        _, generated_pyi_string = io.generate_pyi(src, options)
+        expected_pyi_string = f"import {basic_name}\n\ny: int\n"
+    self.assertEqual(generated_pyi_string, expected_pyi_string)
 
   def test_generate_pyi__overload_order(self):
     _, pyi_string = io.generate_pyi(textwrap.dedent("""
@@ -143,18 +146,19 @@ class IOTest(unittest.TestCase):
 
   def test_unused_imports_info_files(self):
     with test_utils.Tempdir() as d, file_utils.cd(d.path):
+      j = path_utils.join
       d.create_file("common/foo.pyi", "from common import bar\nx: bar.Bar")
       d.create_file("common/bar.pyi", "class Bar: pass")
       d.create_file("common/baz.pyi", "class Baz: pass")
       d.create_file("aaa/other.pyi", "class Other: pass")
       imports_info = d.create_file(
           "imports_info",
-          textwrap.dedent(
-              """
-              common/foo common/foo.pyi
-              common/bar common/bar.pyi
-              common/baz common/baz.pyi
-              aaa/other aaa/other.pyi
+          textwrap.dedent( # The fact that we need to j these suggests a sub-optimal interface somewhere else.
+              f"""
+              {j("common", "foo")} {j("common", "foo.pyi")}
+              {j("common", "bar")} {j("common", "bar.pyi")}
+              {j("common", "baz")} {j("common", "baz.pyi")}
+              {j("aaa", "other")} {j("aaa", "other.pyi")}
               """,
           ),
       )
@@ -173,7 +177,7 @@ class IOTest(unittest.TestCase):
       )
       with options.open_function(unused_imports_info_files) as f:
         content = f.read()
-      self.assertEqual(content, "aaa/other.pyi\ncommon/baz.pyi\n")
+      self.assertEqual(content, j("aaa", "other.pyi")+"\n"+j("common", "baz.pyi")+"\n")
 
 
 if __name__ == "__main__":

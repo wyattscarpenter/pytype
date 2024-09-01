@@ -1699,7 +1699,11 @@ class VirtualMachine:
         val = self._name_error_or_late_annotation(state, name).to_variable(
             state.node
         )
-    vm_utils.check_for_deleted(state, name, val, self.ctx)
+    if on_uninitialized == _UninitializedBehavior.PUSH_NULL:
+      if any(isinstance(x, abstract.Deleted) for x in val.Data(state.node)):
+        val = abstract.Null(self.ctx).to_variable(state.node)
+    else:
+      vm_utils.check_for_deleted(state, name, val, self.ctx)
     self.trace_opcode(op, name, val)
     return state.push(val)
 
@@ -1714,12 +1718,20 @@ class VirtualMachine:
   def byte_LOAD_FAST_AND_CLEAR(self, state, op):
     name = op.argval
     state = self._load_fast(state, op, name, _UninitializedBehavior.PUSH_NULL)
-    null = abstract.Null(self.ctx).to_variable(state.node)
-    return self._store_value(state, name, null, local=True)
+    # According to the docs, we need to set the value to NULL. Since this is
+    # accessing "fast locals", setting to NULL is equalivent to deleting the
+    # value in f_locals.
+    return self._del_name(op, state, name, local=True)
 
   def byte_STORE_FAST(self, state, op):
     name = op.argval
-    return self._pop_and_store(state, op, name, local=True)
+    top = state.top()
+    if top.data and isinstance(top.data[0], abstract.Null):
+      # Storing NULL in a "fast local" is equalivent to deleting the value in
+      # f_locals.
+      return self._del_name(op, state.pop_and_discard(), name, local=True)
+    else:
+      return self._pop_and_store(state, op, name, local=True)
 
   def byte_DELETE_FAST(self, state, op):
     name = op.argval
@@ -2485,13 +2497,11 @@ class VirtualMachine:
     return vm_utils.jump_if(state, op, self.ctx, jump_if_val=False)
 
   def byte_POP_JUMP_IF_TRUE(self, state, op):
-    # TODO: b/345717799 - May need an update for 3.12
     return vm_utils.jump_if(
         state, op, self.ctx, jump_if_val=True, pop=vm_utils.PopBehavior.ALWAYS
     )
 
   def byte_POP_JUMP_IF_FALSE(self, state, op):
-    # TODO: b/345717799 - May need an update for 3.12
     return vm_utils.jump_if(
         state, op, self.ctx, jump_if_val=False, pop=vm_utils.PopBehavior.ALWAYS
     )
@@ -3719,7 +3729,6 @@ class VirtualMachine:
     return self.byte_POP_JUMP_IF_TRUE(state, op)
 
   def byte_INTERPRETER_EXIT(self, state, op):
-    # TODO: b/345717799 - Implement
     del op
     return state
 
@@ -3733,7 +3742,6 @@ class VirtualMachine:
     return state.set_top(top)
 
   def byte_RESERVED(self, state, op):
-    # TODO: b/345717799 - Implement
     del op
     return state
 
