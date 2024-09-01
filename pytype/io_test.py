@@ -151,11 +151,11 @@ class IOTest(unittest.TestCase):
       imports_info = d.create_file(
           "imports_info",
           textwrap.dedent(
-              """
-              common/foo common/foo.pyi
-              common/bar common/bar.pyi
-              common/baz common/baz.pyi
-              aaa/other aaa/other.pyi
+              f"""
+              {j("common", "foo")} {j("common", "foo.pyi")}
+              {j("common", "bar")} {j("common", "bar.pyi")}
+              {j("common", "baz")} {j("common", "baz.pyi")}
+              {j("aaa", "other")} {j("aaa", "other.pyi")}
               """,
           ),
       )
