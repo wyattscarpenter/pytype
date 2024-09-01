@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  set_up_on_windows:
+  Set_up_on_windows:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
@@ -31,24 +31,24 @@ jobs:
         python build_scripts/build.py
   Lint:
     runs-on: windows-latest
-    needs: set_up_on_windows
+    needs: Set_up_on_windows
     steps:
     - run: pylint build_scripts/ pytype/ pytype_extensions/ setup.py
 
   Test:
     runs-on: windows-latest
-    needs: set_up_on_windows
+    needs: Set_up_on_windows
     steps:
     - run: python build_scripts/run_tests.py -v
 
-  Extension Tests:
+  Extension_tests:
     runs-on: windows-latest
-    needs: set_up_on_windows
+    needs: Set_up_on_windows
     steps:
     - run: python -m pytype_extensions.test_pytype_extensions
   
-  Type Check:
+  Type_check:
     runs-on: windows-latest
-    needs: set_up_on_windows
+    needs: Set_up_on_windows
     steps:
     - run: python out/bin/pytype -j auto
