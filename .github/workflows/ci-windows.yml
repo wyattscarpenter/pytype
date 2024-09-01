@@ -26,6 +26,8 @@ jobs:
     - uses: ilammy/msvc-dev-cmd@v1
 
     - name: Test
+      env:
+        LINT: ${{ runner.os == 'Linux' && matrix.python-version == '3.11' }}
       run: | 
         set LIB=C:\Python\Libs;%LIB%
         set TYPESHED_HOME=%cd%\typeshed
