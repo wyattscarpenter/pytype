@@ -144,10 +144,10 @@ class IOTest(unittest.TestCase):
   def test_unused_imports_info_files(self):
     with test_utils.Tempdir() as d, file_utils.cd(d.path):
       j = path_utils.join
-      d.create_file(j("common","foo.pyi"), "from common import bar\nx: bar.Bar")
-      d.create_file(j("common", "bar.pyi"), "class Bar: pass")
-      d.create_file(j("common", "baz.pyi"), "class Baz: pass")
-      d.create_file(j("aaa","other.pyi"), "class Other: pass")
+      d.create_file("common/foo.pyi", "from common import bar\nx: bar.Bar")
+      d.create_file("common/bar.pyi", "class Bar: pass")
+      d.create_file("common/baz.pyi", "class Baz: pass")
+      d.create_file("aaa/other.pyi", "class Other: pass")
       imports_info = d.create_file(
           "imports_info",
           textwrap.dedent( # The fact that we need to j these suggests a sub-optimal interface somewhere else.
