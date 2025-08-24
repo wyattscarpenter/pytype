@@ -1,3 +1,11 @@
+# wfork-pytype
+
+Note: this is a fork of pytype due to their sunsetting it. A record of their rationale can be found at git commit 762b86d07d336613b4dfcc9f15ce9c4b730dbc02 or https://github.com/google/pytype/commit/762b86d07d336613b4dfcc9f15ce9c4b730dbc02
+
+I have incorporated two of my own pull requests to pytype into wfork-pytype, but I also don't have much interest in continuing to maintain pytype, for approximately the same reasons as them (there are better tools in the space already, and maintaining anything takes time). That said, if you want to make a PR to wfork-pytype, for example one of your own PRs that were closed during the sunsetting, the odds are good that I will accept it.
+
+The original readme, including links to various original pytype things, from before they deleted it, is below:
+
 [![CI](https://github.com/google/pytype/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/google/pytype/actions/workflows/ci.yml?query=branch%3Amain)
 [![PyPI - Wheel](https://img.shields.io/pypi/wheel/pytype)](https://pypi.org/project/pytype/#files)
 
